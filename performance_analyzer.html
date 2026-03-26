@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PulseIQ — Performance Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07080d;
+    --surface: #0f1118;
+    --surface2: #161924;
+    --border: #1e2333;
+    --accent: #00e5a0;
+    --accent2: #ff5f57;
+    --accent3: #ffb800;
+    --text: #e8eaf2;
+    --muted: #6b7280;
+    --card-bg: #111420;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    padding: 32px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-mark {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: #07080d;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .badge {
+    margin-left: auto;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.25);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 56px 0 36px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 .hl {
+    background: linear-gradient(135deg, var(--accent), #00b8ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* Input card */
+  .input-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 28px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 24px;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 5px;
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: #07080d;
+    font-weight: 600;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 16px;
+    resize: vertical;
+    min-height: 180px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+
+  textarea::placeholder { color: #3a3f52; }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.04);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .upload-icon { font-size: 32px; margin-bottom: 10px; }
+
+  .upload-zone p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .upload-zone strong { color: var(--text); }
+
+  .file-name {
+    margin-top: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    display: none;
+  }
+
+  /* Context row */
+  .context-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .field-group { display: flex; flex-direction: column; }
+
+  input[type="text"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: #3a3f52; }
+
+  /* Analyze button */
+  .btn-analyze {
+    width: 100%;
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--accent);
+    color: #07080d;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    letter-spacing: -0.3px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-analyze:hover { background: #00ffb3; transform: translateY(-1px); }
+  .btn-analyze:active { transform: translateY(0); }
+  .btn-analyze:disabled { background: #1e2a22; color: #3a4a3e; cursor: not-allowed; transform: none; }
+
+  /* Loading */
+  .loading-bar {
+    display: none;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+
+  .loading-bar.active { display: block; }
+
+  .loading-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #00b8ff, var(--accent));
+    background-size: 200% 100%;
+    border-radius: 2px;
+    animation: loading-anim 1.5s linear infinite;
+    width: 100%;
+  }
+
+  @keyframes loading-anim {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .status-text {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    display: none;
+  }
+
+  /* Results */
+  #results {
+    display: none;
+    animation: fadeUp 0.5s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .results-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .btn-reset {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .btn-reset:hover { color: var(--text); border-color: var(--accent); }
+
+  /* Report sections */
+  .report-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .section-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .icon-exec { background: rgba(0,229,160,0.12); }
+  .icon-wins { background: rgba(0,229,160,0.12); }
+  .icon-problems { background: rgba(255,95,87,0.12); }
+  .icon-recs { background: rgba(255,184,0,0.12); }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.2px;
+  }
+
+  .section-tag {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-exec { background: rgba(0,229,160,0.1); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+  .tag-wins { background: rgba(0,229,160,0.1); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+  .tag-problems { background: rgba(255,95,87,0.1); color: var(--accent2); border: 1px solid rgba(255,95,87,0.2); }
+  .tag-recs { background: rgba(255,184,0,0.1); color: var(--accent3); border: 1px solid rgba(255,184,0,0.2); }
+
+  .report-content {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #c8cad8;
+  }
+
+  .report-content ul { list-style: none; padding: 0; }
+
+  .report-content ul li {
+    padding: 10px 0 10px 20px;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .report-content ul li:last-child { border-bottom: none; }
+
+  .report-content ul.wins li::before {
+    content: '▲';
+    position: absolute; left: 0;
+    color: var(--accent);
+    font-size: 9px;
+    top: 14px;
+  }
+
+  .report-content ul.problems li::before {
+    content: '▼';
+    position: absolute; left: 0;
+    color: var(--accent2);
+    font-size: 9px;
+    top: 14px;
+  }
+
+  .report-content ul.recs li::before {
+    content: '→';
+    position: absolute; left: 0;
+    color: var(--accent3);
+    font-size: 13px;
+    top: 10px;
+  }
+
+  .report-content p { margin-bottom: 8px; }
+
+  /* Error */
+  .error-box {
+    background: rgba(255,95,87,0.08);
+    border: 1px solid rgba(255,95,87,0.25);
+    border-radius: 12px;
+    padding: 16px 20px;
+    color: var(--accent2);
+    font-size: 14px;
+    margin-top: 16px;
+    display: none;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0 20px;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .context-row { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 28px; }
+    .input-card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo-mark">P</div>
+    <div class="logo-text">Pulse<span>IQ</span></div>
+    <div class="badge">AI-POWERED</div>
+  </header>
+
+  <div class="hero">
+    <h1>Performance Data,<br><span class="hl">Decoded Instantly</span></h1>
+    <p>Paste your metrics or upload a CSV/spreadsheet export and get a structured analyst report — wins, risks, and recommendations — in seconds.</p>
+  </div>
+
+  <!-- Input Card -->
+  <div class="input-card">
+    <div class="tabs">
+      <button class="tab active" data-tab="paste">Paste Metrics</button>
+      <button class="tab" data-tab="upload">Upload File</button>
+    </div>
+
+    <!-- Paste Tab -->
+    <div id="tab-paste" class="tab-panel active">
+      <label>Metrics / Data (CSV, JSON, or plain text)</label>
+      <textarea id="paste-input" placeholder="Paste your data here...
+E.g.:
+Campaign, Impressions, Clicks, CTR, Conversions, Cost, ROAS
+Brand Search, 120000, 4800, 4.0%, 320, $2400, 5.2x
+Display, 980000, 3920, 0.4%, 48, $1800, 1.1x
+YouTube, 450000, 9000, 2.0%, 210, $3100, 3.8x"></textarea>
+    </div>
+
+    <!-- Upload Tab -->
+    <div id="tab-upload" class="tab-panel">
+      <label>Upload CSV or Text File</label>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept=".csv,.txt,.tsv,.xlsx,.xls" />
+        <div class="upload-icon">📊</div>
+        <p><strong>Drop your file here</strong> or click to browse<br>
+        Supports CSV, TSV, TXT</p>
+        <div class="file-name" id="file-name"></div>
+      </div>
+    </div>
+
+    <!-- Context -->
+    <div class="context-row">
+      <div class="field-group">
+        <label>Client / Brand Name (optional)</label>
+        <input type="text" id="client-name" placeholder="e.g. Acme Corp" />
+      </div>
+      <div class="field-group">
+        <label>Time Period (optional)</label>
+        <input type="text" id="time-period" placeholder="e.g. Q1 2025 or Jan–Mar" />
+      </div>
+    </div>
+
+    <button class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">
+      <span id="btn-icon">⚡</span>
+      <span id="btn-text">Analyze Performance</span>
+    </button>
+
+    <div class="loading-bar" id="loading-bar"><div class="loading-fill"></div></div>
+    <div class="status-text" id="status-text">Analyzing your data with Claude...</div>
+    <div class="error-box" id="error-box"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="results-header">
+      <h2>Performance Report</h2>
+      <button class="btn-reset" onclick="resetApp()">← New Analysis</button>
+    </div>
+
+    <div class="report-section" id="section-exec">
+      <div class="section-header">
+        <div class="section-icon icon-exec">📋</div>
+        <div class="section-title">Executive Summary</div>
+        <span class="section-tag tag-exec">OVERVIEW</span>
+      </div>
+      <hr class="divider">
+      <div class="report-content" id="content-exec"></div>
+    </div>
+
+    <div class="report-section" id="section-wins">
+      <div class="section-header">
+        <div class="section-icon icon-wins">✅</div>
+        <div class="section-title">Key Wins</div>
+        <span class="section-tag tag-wins">STRENGTHS</span>
+      </div>
+      <hr class="divider">
+      <div class="report-content" id="content-wins"></div>
+    </div>
+
+    <div class="report-section" id="section-problems">
+      <div class="section-header">
+        <div class="section-icon icon-problems">⚠️</div>
+        <div class="section-title">Key Problems / Risks</div>
+        <span class="section-tag tag-problems">ISSUES</span>
+      </div>
+      <hr class="divider">
+      <div class="report-content" id="content-problems"></div>
+    </div>
+
+    <div class="report-section" id="section-recs">
+      <div class="section-header">
+        <div class="section-icon icon-recs">🎯</div>
+        <div class="section-title">Actionable Recommendations</div>
+        <span class="section-tag tag-recs">NEXT STEPS</span>
+      </div>
+      <hr class="divider">
+      <div class="report-content" id="content-recs"></div>
+    </div>
+  </div>
+
+  <footer>PulseIQ — Powered by Claude AI · Built for marketers who move fast</footer>
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // File upload
+  const fileInput = document.getElementById('file-input');
+  const uploadZone = document.getElementById('upload-zone');
+  const fileNameEl = document.getElementById('file-name');
+  let uploadedFileContent = '';
+
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    fileNameEl.textContent = '📎 ' + file.name;
+    fileNameEl.style.display = 'block';
+    uploadedFileContent = await file.text();
+  });
+
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    fileNameEl.textContent = '📎 ' + file.name;
+    fileNameEl.style.display = 'block';
+    uploadedFileContent = await file.text();
+  });
+
+  async function runAnalysis() {
+    const activeTab = document.querySelector('.tab.active').dataset.tab;
+    let data = activeTab === 'paste'
+      ? document.getElementById('paste-input').value.trim()
+      : uploadedFileContent.trim();
+
+    if (!data) {
+      showError('Please paste your metrics or upload a file before analyzing.');
+      return;
+    }
+
+    const client = document.getElementById('client-name').value.trim();
+    const period = document.getElementById('time-period').value.trim();
+
+    setLoading(true);
+    hideError();
+    document.getElementById('results').style.display = 'none';
+
+    const systemPrompt = `You are an expert digital marketer and performance analyst with deep experience in paid media, analytics, and client-facing reporting. You think like a senior strategist — not a math bot.
+
+When analyzing data:
+- Connect metrics to real-world behavior (e.g., "High CTR + low conversion = good creative but weak landing page or offer")
+- Identify stop-loss items (things burning money NOW), growth levers (what to scale), and nice-to-have optimizations
+- Speak in channel-smart terms: creative fatigue, audience mismatch, CTR decay, landing page friction, bid structure issues, auction competition
+- Be specific and grounded — use language like "Pause", "Increase budget on", "Test", "Audit", "Fix the landing page CTA", "Re-target converters with X"
+- Avoid fluffy phrases like "leverage synergies" — be direct and actionable
+- Prioritize ruthlessly: rank what matters most first
+
+Your output MUST follow this EXACT JSON structure (respond with valid JSON only, no markdown, no backticks):
+{
+  "executive_summary": "2-3 sentence big-picture story: what is the data collectively telling us about this client's funnel, spend efficiency, and strategic position?",
+  "key_wins": ["Win 1 — specific campaign/channel + metric + why it matters strategically", "Win 2", "Win 3", "Win 4", "Win 5"],
+  "key_problems": ["Problem 1 — specific issue + likely root cause (e.g. creative fatigue, audience mismatch, landing page friction)", "Problem 2", "Problem 3", "Problem 4"],
+  "recommendations": ["#1 STOP-LOSS: Specific action to stop wasting money now", "#2 GROWTH LEVER: Specific action to scale what is working", "#3 Specific optimization action", "#4 Specific test or audit to run", "#5 Nice-to-have improvement"]
+}
+
+Rules:
+- Write in clear plain English — professional but human, like a strategy lead presenting to a marketing director
+- Reference actual numbers, channel names, and campaign names from the data
+- Each bullet should be 1-2 punchy sentences
+- If time data exists, call out trends (improving, declining, plateau)
+- If ROAS or CPA is missing, flag it and say what data would unlock better insight
+- Compare best vs worst performers when multiple campaigns/channels exist
+- Do NOT show JSON, code, or internal reasoning in your output — just the clean JSON structure`;
+
+    const userPrompt = `${client ? `Client: ${client}\n` : ''}${period ? `Time Period: ${period}\n` : ''}
+Performance Data:
+${data}
+
+Analyze this data and return valid JSON only.`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.error?.message || 'API error');
+      }
+
+      const rawText = responseData.content.map(b => b.text || '').join('');
+      const clean = rawText.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+
+      renderResults(parsed);
+    } catch (err) {
+      showError('Analysis failed: ' + err.message + '. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function renderResults(data) {
+    // Executive summary
+    document.getElementById('content-exec').innerHTML =
+      `<p>${escapeHtml(data.executive_summary)}</p>`;
+
+    // Wins
+    document.getElementById('content-wins').innerHTML =
+      `<ul class="wins">${(data.key_wins || []).map(w =>
+        `<li>${escapeHtml(w)}</li>`).join('')}</ul>`;
+
+    // Problems
+    document.getElementById('content-problems').innerHTML =
+      `<ul class="problems">${(data.key_problems || []).map(p =>
+        `<li>${escapeHtml(p)}</li>`).join('')}</ul>`;
+
+    // Recommendations
+    document.getElementById('content-recs').innerHTML =
+      `<ul class="recs">${(data.recommendations || []).map(r =>
+        `<li>${escapeHtml(r)}</li>`).join('')}</ul>`;
+
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function setLoading(on) {
+    const btn = document.getElementById('analyze-btn');
+    const bar = document.getElementById('loading-bar');
+    const status = document.getElementById('status-text');
+    btn.disabled = on;
+    document.getElementById('btn-text').textContent = on ? 'Analyzing...' : 'Analyze Performance';
+    document.getElementById('btn-icon').textContent = on ? '⏳' : '⚡';
+    bar.classList.toggle('active', on);
+    status.style.display = on ? 'block' : 'none';
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-box');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('error-box').style.display = 'none';
+  }
+
+  function resetApp() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('paste-input').value = '';
+    document.getElementById('client-name').value = '';
+    document.getElementById('time-period').value = '';
+    uploadedFileContent = '';
+    fileNameEl.style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
