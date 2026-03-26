@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Marketing Insights Expert</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        .upload-area { border: 3px dashed #3498db; border-radius: 12px; padding: 40px; text-align: center; background: #f8f9fa; margin-bottom: 20px; transition: all 0.3s; }
+        .upload-area:hover { border-color: #e74c3c; background: #fff5f5; }
+        input[type="file"], button, select { padding: 12px 24px; font-size: 16px; border: 1px solid #ddd; border-radius: 8px; margin: 5px; }
+        button { background: #27ae60; color: white; cursor: pointer; border: none; font-weight: 600; }
+        button:hover { background: #229954; }
+        button:disabled { background: #bdc3c7; cursor: not-allowed; }
+        #output { margin-top: 30px; }
+        .metric-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 20px; }
+        .insight-box { background: #ecf0f1; padding: 20px; border-radius: 12px; border-left: 5px solid #3498db; }
+        .insight-box.danger { border-left-color: #e74c3c; background: #fdf2f2; }
+        .insight-box.success { border-left-color: #27ae60; background: #f0fff4; }
+        .priority { background: #f39c12; color: white !important; padding: 15px; border-radius: 8px; margin: 10px 0; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #34495e; color: white; font-weight: 600; }
+        .error { color: #e74c3c; background: #fdf2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Digital Marketing Insights Expert</h1>
+        <p class="subtitle">Upload Google Ads, Meta Ads, LinkedIn, or ANY campaign CSV. Get expert analysis + actionable recommendations.</p>
+        
+        <div class="upload-area">
+            <input type="file" id="csvFile" accept=".csv" />
+            <br><br>
+            <select id="platform">
+                <option value="auto">Auto-detect Platform</option>
+                <option value="google">Google Ads</option>
+                <option value="meta">Meta Ads (Facebook/Instagram)</option>
+                <option value="linkedin">LinkedIn Ads</option>
+                <option value="tiktok">TikTok Ads</option>
+            </select>
+            <button onclick="analyzeCampaigns()" id="analyzeBtn">🔍 Generate Expert Insights</button>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+
+    <script>
+        async function analyzeCampaigns() {
+            const fileInput = document.getElementById('csvFile');
+            const platform = document.getElementById('platform').value;
+            const output = document.getElementById('output');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            
+            if (!fileInput.files[0]) {
+                output.innerHTML = '<div class="error">Please upload your CSV file first.</div>';
+                return;
+            }
+            
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+            output.innerHTML = '<div class="metric-card">🔄 Processing your campaigns as a senior digital marketer...</div>';
+            
+            Papa.parse(fileInput.files[0], {
+                header: true,
+                complete: function(results) {
+                    const data = results.data;
+                    const analysis = expertAnalysis(data, platform);
+                    displayExpertInsights(analysis, output);
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = '🔍 Generate Expert Insights';
+                },
+                error: function() { 
+                    output.innerHTML = '<div class="error">Error parsing CSV. Please check file format.</div>';
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = '🔍 Generate Expert Insights';
+                }
+            });
+        }
+
+        function expertAnalysis(data, platform) {
+            const campaigns = data.filter(row => row.Campaign || row['Campaign Name'] || row.Name || row.campaign_name);
+            const metrics = detectMetrics(data);
+            
+            return campaigns.map(campaign => {
+                const row = normalizeCampaignData(campaign, metrics);
+                return analyzeSingleCampaign(row, metrics, platform);
+            }).filter(Boolean);
+        }
+
+        function detectMetrics(data) {
+            const sampleRow = data[0] || {};
+            const metrics = {
+                name: Object.keys(sampleRow).find(k => k.toLowerCase().includes('campaign') && k.toLowerCase().includes('name')) || 'Campaign',
+                clicks: Object.keys(sampleRow).find(k => k.toLowerCase().includes('click')) || 'Clicks',
+                impressions: Object.keys(sampleRow).find(k => k.toLowerCase().includes('impression')) || 'Impressions',
+                spend: Object.keys(sampleRow).find(k => k.toLowerCase().includes('cost') || k.toLowerCase().includes('spend')) || 'AmountSpent',
+                conversions: Object.keys(sampleRow).find(k => k.toLowerCase().includes('conversion') || k.toLowerCase().includes('purchase')) || 'Conversions',
+                ctr: Object.keys(sampleRow).find(k => k.toLowerCase().includes('ctr')) || 'CTR',
+                cpc: Object.keys(sampleRow).find(k => k.toLowerCase().includes('cpc')) || 'CPC',
+                cpa: Object.keys(sampleRow).find(k => k.toLowerCase().includes('cpa')) || 'CPA',
+                roas: Object.keys(sampleRow).find(k => k.toLowerCase().includes('roas') || k.toLowerCase().includes('return')) || 'ROAS'
+            };
+            return metrics;
+        }
+
+        function normalizeCampaignData(row, metrics) {
+            return {
+                name: row[metrics.name] || 'Unnamed',
+                clicks: parseFloat(row[metrics.clicks]) || 0,
+                impressions: parseFloat(row[metrics.impressions]) || 0,
+                spend: parseFloat(row[metrics.spend]) || 0,
+                conversions: parseFloat(row[metrics.conversions]) || 0,
+                ctr: parseFloat((row[metrics.ctr] || '0').toString().replace('%', '')) / 100 || 0,
+                cpc: parseFloat(row[metrics.cpc]) || 0,
+                cpa: parseFloat(row[metrics.cpa]) || 0,
+                roas: parseFloat(row[metrics.roas]) || 0,
+                days: parseFloat(row.DaysRunning || row['Days Running'] || 30) || 30
+            };
+        }
+
+        function analyzeSingleCampaign(row, metrics, platform) {
+            const insights = {
+                name: row.name,
+                keyMetrics: {
+                    ctr: (row.ctr * 100).toFixed(1) + '%',
+                    cpc: row.cpc.toFixed(2),
+                    roas: row.roas.toFixed(1),
+                    conversions: row.conversions.toFixed(0)
+                },
+                diagnosis: [],
+                recommendations: [],
+                priority: 'low'
+            };
+
+            // MATURITY DIAGNOSIS
+            const maturity = getMaturityStage(row.days, row.conversions);
+            insights.diagnosis.push(`**Maturity:** ${maturity}`);
+
+            // PERFORMANCE DIAGNOSIS
+            if (row.ctr < 0.02) {
+                insights.diagnosis.push('❌ Low CTR - Ads/keywords underperforming');
+                insights.recommendations.push('📝 Improve ad copy, headlines, extensions');
+                insights.priority = 'high';
+            }
+            if (row.cpc > 3 && platform !== 'linkedin') {
+                insights.diagnosis.push('❌ High CPC - Quality Score or competition issue');
+                insights.recommendations.push('🎯 Refine keywords, improve landing pages');
+                insights.priority = 'high';
+            }
+            if (row.roas < 2 && row.spend > 100) {
+                insights.diagnosis.push('❌ Poor ROAS - Not profitable');
+                insights.recommendations.push('💰 Switch to Target ROAS/Target CPA bidding');
+                insights.priority = 'high';
+            }
+            if (row.conversions < 10) {
+                insights.diagnosis.push('⚠️ Low conversion volume');
+                insights.recommendations.push('📊 Gather more data before major changes');
+            }
+            if (row.spend > 1000 && row.impressions < 50000) {
+                insights.diagnosis.push('⚠️ High spend, low reach');
+                insights.recommendations.push('🔍 Check audience targeting, expand placements');
+            }
+
+            // PLATFORM-SPECIFIC
+            if (platform === 'meta') {
+                if (row.impressions > 100000 && row.conversions < 50) {
+                    insights.recommendations.push('🎯 Add lookalike audiences, test Advantage+');
+                }
+            } else if (platform === 'linkedin') {
+                if (row.cpc > 8) {
+                    insights.recommendations.push('👥 Focus on warmer audiences, retargeting');
+                }
+            }
+
+            insights.recommendations.push(`**Next Check:** Ad copy relevance score, landing page speed`);
+            
+            return insights;
+        }
+
+        function getMaturityStage(days, conversions) {
+            if (days < 7 || conversions < 15) return "Learning Phase (Hands off)";
+            if (days < 30) return "Early Stage (Fine-tune)";
+            if (days < 90) return "Growth Phase (Scale winners)";
+            return "Mature (Optimize/Expand)";
+        }
+
+        function displayExpertInsights(analysis, output) {
+            if (!analysis.length) {
+                output.innerHTML = '<div class="error">No valid campaign data found. Check CSV columns.</div>';
+                return;
+            }
+
+            let html = `<div class="metric-card">
+                <strong>📊 Account Health:</strong> ${analysis.length} campaigns analyzed | 
+                Avg ROAS: ${analysis.reduce((sum, c) => sum + parseFloat(c.keyMetrics.roas), 0) / analysis.length | 
+                ${analysis.filter(c => c.priority === 'high').length} high-priority fixes needed
+            </div>`;
+
+            analysis.forEach(campaign => {
+                const className = campaign.priority === 'high' ? 'danger' : campaign.diagnosis.length > 1 ? '' : 'success';
+                html += `
+                    <div class="insights-grid">
+                        <div class="insight-box ${className}">
+                            <h3>🎯 ${campaign.name}</h3>
+                            <p><strong>CTR:</strong> ${campaign.keyMetrics.ctr} | 
+                               <strong>ROAS:</strong> ${campaign.keyMetrics.roas} | 
+                               <strong>Conversions:</strong> ${campaign.keyMetrics.conversions}</p>
+                            <div class="priority">${campaign.diagnosis.join('<br>')}</div>
+                            <h4>✅ Action Plan:</h4>
+                            <ul>${campaign.recommendations.map(r => `<li>${r}</li>`).join('')}</ul>
+                        </div>
+                    </div>`;
+            });
+
+            output.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
